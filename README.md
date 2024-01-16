@@ -15,13 +15,13 @@
 1. Add Go Toolkit as a dependency using Go Modules:
 
     ```bash
-    go get github.com/username/go-toolkit
+    go get github.com/alpardfm/go-toolkit
     ```
 
 2. Import and use the required functionality in your project:
 
     ```go
-    import "github.com/username/go-toolkit"
+    import "github.com/alpardfm/go-toolkit"
     ```
 
 ## Example Usage
