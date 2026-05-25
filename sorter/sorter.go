@@ -2,14 +2,17 @@ package sorter
 
 import "sort"
 
+// Interface extends sort.Interface for custom sorting implementations.
 type Interface interface {
 	sort.Interface
 }
+
 type sorter[T any] struct {
 	items    *[]T
 	lessFunc func(items []T, i, j int) bool
 }
 
+// NewSorter creates a new sorter that implements sort.Interface using the provided less function.
 func NewSorter[T any](items *[]T, lessFunc func(items []T, i, j int) bool) Interface {
 	return &sorter[T]{
 		items:    items,

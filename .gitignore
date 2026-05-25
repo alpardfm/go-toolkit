@@ -1,0 +1,28 @@
+# Kiro internal
+.kiro/
+
+# Go workspace (local development only)
+go.work
+go.work.sum
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+/bin/
+/dist/
+
+# Test coverage
+coverage.out
+coverage.html
+
+# Environment
+.env
+.env.local

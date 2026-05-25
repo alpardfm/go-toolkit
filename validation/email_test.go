@@ -23,7 +23,7 @@ func TestIsValidEmail(t *testing.T) {
 		{
 			name:        "test email invalid format",
 			paramsEmail: "examplegmail.com",
-			wantErrMsg:  "email format is not valid",
+			wantErrMsg:  "Error: email format is not valid",
 			wantResult:  convert.ToPtr(false),
 		},
 	}

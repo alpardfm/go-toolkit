@@ -7,6 +7,8 @@ import (
 	"github.com/alpardfm/go-toolkit/errors"
 )
 
+// IsValidEmail validates whether the given string is a valid email address format.
+// Returns true if valid, or false with an error if the format is invalid.
 func IsValidEmail(email string) (bool, error) {
 	const pattern = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 

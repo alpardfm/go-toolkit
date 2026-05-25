@@ -1,11 +1,11 @@
 package parser
 
-import "github.com/alpardfm/go-toolkit/log"
-
+// Parser provides access to different parsing implementations.
 type Parser interface {
 	JSONParser() JSONInterface
 }
 
+// Options configures the parser with specific settings for each format.
 type Options struct {
 	JSONOptions JSONOptions
 }
@@ -14,7 +14,8 @@ type parser struct {
 	json JSONInterface
 }
 
-func InitParser(log log.Interface, opt Options) Parser {
+// InitParser creates a new Parser instance configured with the given options.
+func InitParser(opt Options) Parser {
 	return &parser{
 		json: initJSON(opt.JSONOptions),
 	}

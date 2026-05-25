@@ -34,7 +34,8 @@ type params struct {
 	keyLen      uint32
 }
 
-// hash password with argon2 standard hash format
+// NewArgon2 hashes a password using the Argon2id algorithm and returns the hash
+// in the standard argon2id encoded format: $argon2id$v=<version>$m=<memory>,t=<iterations>,p=<parallelism>$<salt>$<hash>.
 func NewArgon2(password []byte) (string, error) {
 	p := params{
 		salt:        make([]byte, 16),
@@ -58,7 +59,8 @@ func NewArgon2(password []byte) (string, error) {
 	return encodedHash, nil
 }
 
-// compare hash password with argon2 standard hash format
+// CompareArgon2 compares a plaintext password against an argon2id encoded hash.
+// Returns true if the password matches, false otherwise.
 func CompareArgon2(password, encodedHash string) (bool, error) {
 	// extract all parameters include salt and key length from encoded password hash
 	p, hash, err := decodeHash(encodedHash)

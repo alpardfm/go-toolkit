@@ -5,6 +5,9 @@ import (
 	"math"
 )
 
+// CalculateDistance computes the distance in meters between two geographic coordinates
+// using the Haversine formula. Optionally pass "K" as a unit to get the result in kilometers before
+// the final meters conversion.
 func CalculateDistance(ctx context.Context, lat1 float64, lng1 float64, lat2 float64, lng2 float64, units ...string) float64 {
 	radlat1 := float64(math.Pi * lat1 / 180)
 	radlat2 := float64(math.Pi * lat2 / 180)

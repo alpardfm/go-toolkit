@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// CreateBcrypt hashes a plaintext string using bcrypt with the specified cost factor.
 func CreateBcrypt(plainText string, cost int) (string, error) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(plainText), cost)
 	if err != nil {
@@ -17,6 +18,8 @@ func CreateBcrypt(plainText string, cost int) (string, error) {
 	return string(hashed), nil
 }
 
+// CompareBcrypt compares a bcrypt hashed string with a plaintext string.
+// Returns nil if they match, or an error if they do not.
 func CompareBcrypt(hashedText string, plainText string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedText), []byte(plainText))
 	if err != nil {

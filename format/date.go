@@ -1,7 +1,6 @@
 package format
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/alpardfm/go-toolkit/codes"
@@ -24,7 +23,7 @@ const (
 func TimeParseWithDefaultFormat(value string) (time.Time, error) {
 	result, err := time.Parse(DayMonthYearHourMinSec, value)
 	if err != nil {
-		return time.Time{}, errors.NewWithCode(codes.CodeInvalidValue, fmt.Sprintf("invalid time format: %v", err))
+		return time.Time{}, errors.NewWithCode(codes.CodeInvalidValue, "invalid time format: %v", err)
 	}
 	return result, nil
 }

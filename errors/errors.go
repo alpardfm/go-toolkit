@@ -11,6 +11,7 @@ import (
 	"github.com/alpardfm/go-toolkit/operator"
 )
 
+// App represents an application-level error with a code, user-facing title and body, and an underlying system error.
 type App struct {
 	Code  codes.Code `json:"code"`
 	Title string     `json:"title"`
@@ -18,6 +19,7 @@ type App struct {
 	sys   error
 }
 
+// Error returns the string representation of the underlying system error.
 func (e *App) Error() string {
 	return e.sys.Error()
 }
@@ -44,10 +46,13 @@ func Compile(err error, lang string) (int, App) {
 	}
 }
 
-func NewWithCode(code codes.Code, msg string, val ...interface{}) error {
+// NewWithCode creates a new error with a stacktrace, error code, and formatted message.
+func NewWithCode(code codes.Code, msg string, val ...any) error {
 	return create(nil, code, msg, val...)
 }
 
+// GetCaller returns the file, line number, message, and any error from the stacktrace.
+// If the error is not a stacktrace type, it returns an error indicating the cast failure.
 func GetCaller(err error) (string, int, string, error) {
 	if st, isOk := err.(*stacktrace); isOk {
 		return st.file, st.line, st.message, nil
@@ -56,7 +61,7 @@ func GetCaller(err error) (string, int, string, error) {
 	}
 }
 
-func create(cause error, code codes.Code, msg string, val ...interface{}) error {
+func create(cause error, code codes.Code, msg string, val ...any) error {
 	if code == codes.NoCode {
 		code = GetCode(cause)
 	}
@@ -84,9 +89,9 @@ func create(cause error, code codes.Code, msg string, val ...interface{}) error 
 
 func shortFuncName(f *runtime.Func) string {
 	// f.Name() is like one of these:
-	// - "github.com/anekapay/go-sdk/<package>.<FuncName>"
-	// - "github.com/anekapay/go-sdk/<package>.<Receiver>.<MethodName>"
-	// - "github.com/anekapay/go-sdk/<package>.<*PtrReceiver>.<MethodName>"
+	// - "github.com/alpardfm/go-toolkit/<package>.<FuncName>"
+	// - "github.com/alpardfm/go-toolkit/<package>.<Receiver>.<MethodName>"
+	// - "github.com/alpardfm/go-toolkit/<package>.<*PtrReceiver>.<MethodName>"
 	longName := f.Name()
 
 	withoutPath := longName[strings.LastIndex(longName, "/")+1:]
@@ -100,6 +105,8 @@ func shortFuncName(f *runtime.Func) string {
 	return shortName
 }
 
+// GetCode extracts the error code from a stacktrace error.
+// If the error is not a stacktrace type, it returns NoCode.
 func GetCode(err error) codes.Code {
 	if err, ok := err.(*stacktrace); ok {
 		return err.code

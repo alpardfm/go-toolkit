@@ -15,6 +15,7 @@ const (
 	customConfig      jsonConfig = "custom"
 )
 
+// JSONOptions configures the JSON parser behavior including encoding settings.
 type JSONOptions struct {
 	Config                        jsonConfig
 	IndentionStep                 int
@@ -30,9 +31,10 @@ type JSONOptions struct {
 	CaseSensitive                 bool
 }
 
+// JSONInterface defines the contract for JSON marshaling and unmarshaling operations.
 type JSONInterface interface {
-	Marshal(orig interface{}) ([]byte, error)
-	Unmarshal(blob []byte, dest interface{}) error
+	Marshal(orig any) ([]byte, error)
+	Unmarshal(blob []byte, dest any) error
 	// TODO: add schema validation
 }
 
@@ -72,7 +74,7 @@ func initJSON(opt JSONOptions) JSONInterface {
 	return p
 }
 
-func (p *jsonParser) Marshal(orig interface{}) ([]byte, error) {
+func (p *jsonParser) Marshal(orig any) ([]byte, error) {
 	stream := p.API.BorrowStream(nil)
 	defer p.API.ReturnStream(stream)
 	stream.WriteVal(orig)
@@ -84,7 +86,7 @@ func (p *jsonParser) Marshal(orig interface{}) ([]byte, error) {
 	return result, nil
 }
 
-func (p *jsonParser) Unmarshal(blob []byte, dest interface{}) error {
+func (p *jsonParser) Unmarshal(blob []byte, dest any) error {
 	iter := p.API.BorrowIterator(blob)
 	defer p.API.ReturnIterator(iter)
 	iter.ReadVal(dest)

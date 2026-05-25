@@ -111,6 +111,54 @@ var (
 		BodyID:     "Layanan sedang tidak tersedia. Mohon hubungi administrator.",
 	}
 
+	// Config errors
+	ErrMsgConfigBuilderInit = Message{
+		StatusCode: http.StatusInternalServerError,
+		TitleEN:    language.HTTPStatusText(language.English, http.StatusInternalServerError),
+		TitleID:    language.HTTPStatusText(language.Indonesian, http.StatusInternalServerError),
+		BodyEN:     "Failed to initialize config builder. Please contact the administrator.",
+		BodyID:     "Gagal menginisialisasi config builder. Mohon hubungi administrator.",
+	}
+	ErrMsgConfigBuilderBuild = Message{
+		StatusCode: http.StatusInternalServerError,
+		TitleEN:    language.HTTPStatusText(language.English, http.StatusInternalServerError),
+		TitleID:    language.HTTPStatusText(language.Indonesian, http.StatusInternalServerError),
+		BodyEN:     "Failed to build configuration. Please contact the administrator.",
+		BodyID:     "Gagal membangun konfigurasi. Mohon hubungi administrator.",
+	}
+	ErrMsgConfigReaderInit = Message{
+		StatusCode: http.StatusInternalServerError,
+		TitleEN:    language.HTTPStatusText(language.English, http.StatusInternalServerError),
+		TitleID:    language.HTTPStatusText(language.Indonesian, http.StatusInternalServerError),
+		BodyEN:     "Failed to initialize config reader. Please contact the administrator.",
+		BodyID:     "Gagal menginisialisasi config reader. Mohon hubungi administrator.",
+	}
+	ErrMsgConfigReaderRead = Message{
+		StatusCode: http.StatusInternalServerError,
+		TitleEN:    language.HTTPStatusText(language.English, http.StatusInternalServerError),
+		TitleID:    language.HTTPStatusText(language.Indonesian, http.StatusInternalServerError),
+		BodyEN:     "Failed to read configuration. Please contact the administrator.",
+		BodyID:     "Gagal membaca konfigurasi. Mohon hubungi administrator.",
+	}
+
+	// SQL shutdown error
+	ErrMsgSQLShutdown = Message{
+		StatusCode: http.StatusInternalServerError,
+		TitleEN:    language.HTTPStatusText(language.English, http.StatusInternalServerError),
+		TitleID:    language.HTTPStatusText(language.Indonesian, http.StatusInternalServerError),
+		BodyEN:     "Failed to gracefully shutdown database connection. Please contact the administrator.",
+		BodyID:     "Gagal menutup koneksi database dengan baik. Mohon hubungi administrator.",
+	}
+
+	// NoSQL close error
+	ErrMsgNoSQLClose = Message{
+		StatusCode: http.StatusInternalServerError,
+		TitleEN:    language.HTTPStatusText(language.English, http.StatusInternalServerError),
+		TitleID:    language.HTTPStatusText(language.Indonesian, http.StatusInternalServerError),
+		BodyEN:     "Failed to close NoSQL connection. Please contact the administrator.",
+		BodyID:     "Gagal menutup koneksi NoSQL. Mohon hubungi administrator.",
+	}
+
 	// Successful messages
 	MsgSuccessDefault = Message{
 		StatusCode: http.StatusOK,

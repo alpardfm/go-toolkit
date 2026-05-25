@@ -9,7 +9,8 @@ import (
 	"github.com/cstockton/go-conv"
 )
 
-func ToInt64(i interface{}) (int64, error) {
+// ToInt64 converts any value to an int64, returning an error if the conversion fails.
+func ToInt64(i any) (int64, error) {
 	val, err := conv.Int64(i)
 	if err != nil {
 		return val, errors.NewWithCode(codes.CodeInvalidValue, "failed to parse value: %v. with err: %v", i, err)
@@ -18,7 +19,9 @@ func ToInt64(i interface{}) (int64, error) {
 	return val, nil
 }
 
-func ToArrInt64(i interface{}) ([]int64, error) {
+// ToArrInt64 converts a value or slice of values to a slice of int64.
+// If the input is not a slice, it wraps the single converted value in a slice.
+func ToArrInt64(i any) ([]int64, error) {
 	val := make([]int64, 0)
 	// if the input is not a slice, convert the input to slice with one member
 	if reflect.TypeOf(i).Kind() != reflect.Slice {
@@ -43,7 +46,8 @@ func ToArrInt64(i interface{}) ([]int64, error) {
 	return val, nil
 }
 
-func ToFloat64(i interface{}) (float64, error) {
+// ToFloat64 converts any value to a float64, returning an error if the conversion fails.
+func ToFloat64(i any) (float64, error) {
 	v := reflect.ValueOf(i)
 	v = reflect.Indirect(v)
 
@@ -66,7 +70,8 @@ func ToFloat64(i interface{}) (float64, error) {
 	return val, nil
 }
 
-func ToString(i interface{}) (string, error) {
+// ToString converts any value to its string representation, returning an error if the conversion fails.
+func ToString(i any) (string, error) {
 	val, err := conv.String(i)
 	if err != nil {
 		return val, errors.NewWithCode(codes.CodeInvalidValue, "failed to parse value: %v. with err: %v", i, err)
@@ -205,6 +210,7 @@ func CopyStruct(src, dst any, fieldOpts, typeOpts map[string](func(srcValue refl
 	return nil
 }
 
+// ToPtr returns a pointer to the given value. Useful for creating pointers to literals.
 func ToPtr[T any](value T) *T {
 	return &value
 }

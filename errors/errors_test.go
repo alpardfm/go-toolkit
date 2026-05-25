@@ -4,11 +4,19 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/alpardfm/go-toolkit/codes"
 	"github.com/alpardfm/go-toolkit/language"
 )
+
+// currentTestFile returns the absolute path of the current test file using runtime.Caller.
+func currentTestFile() string {
+	_, file, _, _ := runtime.Caller(0)
+	return file
+}
 
 func TestApp_Error(t *testing.T) {
 	tests := []struct {
@@ -17,7 +25,7 @@ func TestApp_Error(t *testing.T) {
 	}{
 		{
 			name: "OK",
-			want: "invalid format",
+			want: "Error: invalid format",
 		},
 	}
 	for _, tt := range tests {
@@ -80,50 +88,48 @@ func TestCompile(t *testing.T) {
 }
 
 func TestGetCaller(t *testing.T) {
-	type args struct {
-		err error
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    string
-		want1   int
-		want2   string
-		wantErr bool
-	}{
-		{
-			name:    "ok",
-			args:    args{err: NewWithCode(codes.CodeBadRequest, "bad request")},
-			want:    "/Users/alvinr/anekapay/go-sdk/errors/errors_test.go",
-			want1:   96,
-			want2:   "bad request",
-			wantErr: false,
-		},
-		{
-			name:    "not ok",
-			args:    args{err: fmt.Errorf("")},
-			want:    "",
-			want1:   0,
-			want2:   "",
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, got1, got2, err := GetCaller(tt.args.err)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetCaller() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("GetCaller() got = %v, want %v", got, tt.want)
-			}
-			if got1 != tt.want1 {
-				t.Errorf("GetCaller() got1 = %v, want %v", got1, tt.want1)
-			}
-			if got2 != tt.want2 {
-				t.Errorf("GetCaller() got2 = %v, want %v", got2, tt.want2)
-			}
-		})
-	}
+	testFile := currentTestFile()
+
+	t.Run("ok", func(t *testing.T) {
+		// Create the error and record the line number where it's created.
+		// runtime.Caller(2) inside create() will point to this call site.
+		err := NewWithCode(codes.CodeBadRequest, "bad request")
+		_, _, expectedLine, _ := runtime.Caller(0)
+		expectedLine-- // the previous line is where the error was created
+
+		got, got1, got2, gotErr := GetCaller(err)
+		if gotErr != nil {
+			t.Errorf("GetCaller() error = %v, wantErr false", gotErr)
+			return
+		}
+		if !strings.HasSuffix(got, "errors/errors_test.go") {
+			t.Errorf("GetCaller() got file = %v, want suffix %v", got, "errors/errors_test.go")
+		}
+		if got != testFile {
+			t.Errorf("GetCaller() got file = %v, want %v", got, testFile)
+		}
+		if got1 != expectedLine {
+			t.Errorf("GetCaller() got line = %v, want %v", got1, expectedLine)
+		}
+		if got2 != "bad request" {
+			t.Errorf("GetCaller() got message = %v, want %v", got2, "bad request")
+		}
+	})
+
+	t.Run("not ok - non-stacktrace error", func(t *testing.T) {
+		got, got1, got2, gotErr := GetCaller(fmt.Errorf(""))
+		if gotErr == nil {
+			t.Errorf("GetCaller() error = nil, wantErr true")
+			return
+		}
+		if got != "" {
+			t.Errorf("GetCaller() got = %v, want empty string", got)
+		}
+		if got1 != 0 {
+			t.Errorf("GetCaller() got1 = %v, want 0", got1)
+		}
+		if got2 != "" {
+			t.Errorf("GetCaller() got2 = %v, want empty string", got2)
+		}
+	})
 }

@@ -7,10 +7,13 @@ import (
 	"github.com/alpardfm/go-toolkit/operator"
 )
 
+// Code represents a numeric error or status code used throughout the toolkit.
 type Code uint32
 
+// AppMessage maps error codes to their corresponding message definitions.
 type AppMessage map[Code]Message
 
+// DisplayMessage represents a user-facing message with HTTP status code, title, and body.
 type DisplayMessage struct {
 	StatusCode int    `json:"statusCode"`
 	Title      string `json:"title"`
@@ -61,6 +64,15 @@ const (
 	CodeSQLUniqueConstraint
 	CodeSQLConflict
 	CodeSQLNoRowsAffected
+	CodeSQLShutdown
+)
+
+// config errors
+const (
+	CodeConfigBuilderInit = Code(iota + 1400)
+	CodeConfigBuilderBuild
+	CodeConfigReaderInit
+	CodeConfigReaderRead
 )
 
 // third party/client errors
@@ -219,6 +231,14 @@ var ErrorMessages = AppMessage{
 	CodeAuthFailure:             ErrMsgUnauthorized,
 	CodeAuthInvalidToken:        ErrMsgInvalidToken,
 	CodeForbidden:               ErrMsgForbidden,
+
+	CodeConfigBuilderInit:  ErrMsgConfigBuilderInit,
+	CodeConfigBuilderBuild: ErrMsgConfigBuilderBuild,
+	CodeConfigReaderInit:   ErrMsgConfigReaderInit,
+	CodeConfigReaderRead:   ErrMsgConfigReaderRead,
+
+	CodeSQLShutdown: ErrMsgSQLShutdown,
+	CodeNoSQLClose:  ErrMsgNoSQLClose,
 }
 
 // Successful messages only
@@ -226,6 +246,8 @@ var ApplicationMessages = AppMessage{
 	CodeSuccess: MsgSuccessDefault,
 }
 
+// Compile returns a DisplayMessage for the given code and language, looking up the message
+// from ApplicationMessages. Falls back to the default success message if the code is not found.
 func Compile(code Code, lang string) DisplayMessage {
 	if appMsg, ok := ApplicationMessages[code]; ok {
 		return DisplayMessage{

@@ -12,7 +12,7 @@ import (
 
 func TestToArrInt64(t *testing.T) {
 	type args struct {
-		i interface{}
+		i any
 	}
 	tests := []struct {
 		name    string
@@ -191,7 +191,7 @@ func TestToFloat64(t *testing.T) {
 	flo := float64(123.43)
 	pointerFlo := &flo
 	type args struct {
-		i interface{}
+		i any
 	}
 	tests := []struct {
 		name    string
@@ -346,67 +346,67 @@ func TestCopyStruct(t *testing.T) {
 			name:        "src: error parameter String",
 			srcArgs:     "a",
 			dstArgs:     structB{},
-			wantMessage: "src: parameter must be a struct but given type is String",
+			wantMessage: "Error: src: parameter must be a struct but given type is string",
 		},
 		{
 			name:        "src: error parameter Int",
 			srcArgs:     100,
 			dstArgs:     structB{},
-			wantMessage: "src: parameter must be a struct but given type is Int",
+			wantMessage: "Error: src: parameter must be a struct but given type is int",
 		},
 		{
 			name:        "src: error parameter bool",
 			srcArgs:     true,
 			dstArgs:     structB{},
-			wantMessage: "src: parameter must be a struct but given type is bool",
+			wantMessage: "Error: src: parameter must be a struct but given type is bool",
 		},
 		{
 			name:        "src: error parameter Float64",
 			srcArgs:     10.10,
 			dstArgs:     structB{},
-			wantMessage: "src: parameter must be a struct but given type is Float64",
+			wantMessage: "Error: src: parameter must be a struct but given type is float64",
 		},
 		{
 			name:        "src: error parameter ptr",
 			srcArgs:     func() *string { s := "s"; return &s }(),
 			dstArgs:     structB{},
-			wantMessage: "src: parameter must be a struct but given type is ptr",
+			wantMessage: "Error: src: parameter must be a struct but given type is ptr",
 		},
 		{
 			name:        "dst: error parameter String",
 			srcArgs:     a,
 			dstArgs:     "structB{}",
-			wantMessage: "dst: parameter must be a pointer but given type is String",
+			wantMessage: "Error: dst: parameter must be a pointer but given type is string",
 		},
 		{
 			name:        "dst: error parameter Int",
 			srcArgs:     a,
 			dstArgs:     100,
-			wantMessage: "dst: parameter must be a pointer but given type is Int",
+			wantMessage: "Error: dst: parameter must be a pointer but given type is int",
 		},
 		{
 			name:        "dst: error parameter bool",
 			srcArgs:     a,
 			dstArgs:     true,
-			wantMessage: "dst: parameter must be a pointer but given type is bool",
+			wantMessage: "Error: dst: parameter must be a pointer but given type is bool",
 		},
 		{
 			name:        "dst: error parameter Float64",
 			srcArgs:     a,
 			dstArgs:     10.10,
-			wantMessage: "dst: parameter must be a pointer but given type is Float64",
+			wantMessage: "Error: dst: parameter must be a pointer but given type is float64",
 		},
 		{
 			name:        "dst: error parameter pointer of string",
 			srcArgs:     a,
 			dstArgs:     func() *string { s := "s"; return &s }(),
-			wantMessage: "dst: parameter must be a pointer but given type is pointer of string",
+			wantMessage: "Error: dst: parameter must be a pointer but given type is pointer of string",
 		},
 		{
 			name:        "dst: error parameter Struct",
 			srcArgs:     a,
 			dstArgs:     structB{},
-			wantMessage: "dst: parameter must be a pointer but given type is Struct",
+			wantMessage: "Error: dst: parameter must be a pointer but given type is struct",
 		},
 		{
 			name:    "CopyStruct() success with field options",

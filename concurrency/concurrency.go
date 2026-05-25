@@ -2,9 +2,12 @@ package concurrency
 
 import (
 	"context"
+	"errors"
 	"sync"
 )
 
+// Interface defines the contract for a concurrent worker pool that executes
+// functions in batches with a configurable maximum number of workers.
 type Interface interface {
 
 	// Use your custom sync.WaitGroup
@@ -17,6 +20,8 @@ type Interface interface {
 	WithMaxWorker(maxWorker int64) Interface
 
 	// Run the list functions with goroutine. The list method will be cleared after calling this method.
+	// Returns a joined error containing all errors collected across all batches via errors.Join().
+	// Use errors.Is() or errors.As() to inspect individual errors within the result.
 	Do(ctx context.Context) error
 
 	// Added function that will be run async at goroutine. This method already call c.Done() after process is complete
@@ -52,7 +57,8 @@ type concurrency struct {
 	listFunc  []func(ctx context.Context, c Interface)
 }
 
-// Do concurrency proccess with custom maximum worker
+// NewConcurrency creates a new concurrency worker pool with a default maximum of 1 worker.
+// Use WithMaxWorker to configure the number of concurrent goroutines.
 func NewConcurrency() Interface {
 	result := concurrency{
 		wg:        &sync.WaitGroup{},
@@ -80,21 +86,32 @@ func (c *concurrency) WithMaxWorker(maxWorker int64) Interface {
 func (c *concurrency) Do(ctx context.Context) error {
 	worker := 0
 	lenDo := len(c.listFunc)
+	var allErrors []error
+
 	for i, fn := range c.listFunc {
-		worker += 1
+		worker++
 		c.wg.Add(1)
 		go fn(ctx, c)
 
 		if worker >= int(c.maxWorker) || i == (lenDo-1) {
 			worker = 0
 			c.wg.Wait()
-			for _, err := range c.listErr {
-				return err
+
+			// Read errors under lock to avoid race with AddError
+			c.lc.Lock()
+			if len(c.listErr) > 0 {
+				allErrors = append(allErrors, c.listErr...)
+				c.listErr = nil // Reset for next batch
 			}
+			c.lc.Unlock()
 		}
 	}
 
 	c.ClearFunc()
+
+	if len(allErrors) > 0 {
+		return errors.Join(allErrors...)
+	}
 	return nil
 }
 
