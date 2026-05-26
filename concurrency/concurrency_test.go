@@ -124,3 +124,70 @@ func unwrapAll(err error) []error {
 	}
 	return []error{err}
 }
+
+func TestDo_ContextCancellation(t *testing.T) {
+	c := NewConcurrency().WithMaxWorker(1)
+
+	executed := make([]bool, 5)
+
+	for i := 0; i < 5; i++ {
+		idx := i
+		c.AddFunc(func(ctx context.Context, c Interface) {
+			executed[idx] = true
+		})
+	}
+
+	// Cancel context before calling Do
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	err := c.Do(ctx)
+	if err == nil {
+		t.Fatal("expected error from cancelled context, got nil")
+	}
+
+	if !errors.Is(err, context.Canceled) {
+		t.Errorf("expected context.Canceled in error, got: %v", err)
+	}
+
+	// Not all functions should have executed since context was cancelled
+	allExecuted := true
+	for _, e := range executed {
+		if !e {
+			allExecuted = false
+			break
+		}
+	}
+	if allExecuted {
+		t.Error("expected some functions to be skipped due to context cancellation")
+	}
+}
+
+func TestDo_ContextCancellationMidBatch(t *testing.T) {
+	c := NewConcurrency().WithMaxWorker(1)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	executedCount := 0
+
+	// First function cancels the context
+	c.AddFunc(func(ctx context.Context, c Interface) {
+		executedCount++
+		cancel()
+	})
+
+	// These should not execute
+	for i := 0; i < 4; i++ {
+		c.AddFunc(func(ctx context.Context, c Interface) {
+			executedCount++
+		})
+	}
+
+	err := c.Do(ctx)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+
+	if executedCount >= 5 {
+		t.Errorf("expected fewer than 5 functions to execute, got %d", executedCount)
+	}
+}

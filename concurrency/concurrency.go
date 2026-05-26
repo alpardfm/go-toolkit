@@ -89,6 +89,15 @@ func (c *concurrency) Do(ctx context.Context) error {
 	var allErrors []error
 
 	for i, fn := range c.listFunc {
+		// Check if context is cancelled before launching next goroutine
+		select {
+		case <-ctx.Done():
+			c.ClearFunc()
+			allErrors = append(allErrors, ctx.Err())
+			return errors.Join(allErrors...)
+		default:
+		}
+
 		worker++
 		c.wg.Add(1)
 		go fn(ctx, c)

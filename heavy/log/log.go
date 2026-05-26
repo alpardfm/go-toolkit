@@ -3,8 +3,8 @@ package log
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
-	"sync"
 	"time"
 
 	"github.com/alpardfm/go-toolkit/appcontext"
@@ -13,10 +13,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-var once = sync.Once{}
-
 type Interface interface {
-	// TODO add Debugf
 	Trace(ctx context.Context, obj any)
 	Debug(ctx context.Context, obj any)
 	Info(ctx context.Context, obj any)
@@ -26,35 +23,34 @@ type Interface interface {
 }
 
 type Config struct {
-	Level string
+	Level  string
+	Writer io.Writer // Optional: defaults to os.Stdout if nil
 }
 
 type logger struct {
 	log zerolog.Logger
 }
 
+// Init creates a new logger instance with the given configuration.
+// Each call returns a new independent logger — safe to call multiple times
+// with different configurations (e.g., in tests).
 func Init(cfg Config) (Interface, error) {
-	var zeroLogging zerolog.Logger
-	var initErr error
-
-	once.Do(func() {
-		level, err := zerolog.ParseLevel(cfg.Level)
-		if err != nil {
-			initErr = err
-			return
-		}
-
-		zeroLogging = zerolog.New(os.Stdout).
-			With().
-			Timestamp().
-			CallerWithSkipFrameCount(3).
-			Logger().
-			Level(level)
-	})
-
-	if initErr != nil {
-		return nil, fmt.Errorf("failed to parse log level %q: %w", cfg.Level, initErr)
+	level, err := zerolog.ParseLevel(cfg.Level)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse log level %q: %w", cfg.Level, err)
 	}
+
+	writer := cfg.Writer
+	if writer == nil {
+		writer = os.Stdout
+	}
+
+	zeroLogging := zerolog.New(writer).
+		With().
+		Timestamp().
+		CallerWithSkipFrameCount(3).
+		Logger().
+		Level(level)
 
 	return &logger{log: zeroLogging}, nil
 }

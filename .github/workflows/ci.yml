@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
 
 jobs:
   test-core:
@@ -18,7 +18,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
-      - run: go test -race ./...
+      - name: Run tests with race detection
+        run: go test -race -timeout 120s ./...
 
   test-heavy:
     runs-on: ubuntu-latest
@@ -31,7 +32,64 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
-      - run: go test -race ./...
+      - name: Run tests with race detection
+        run: go test -race -timeout 120s ./...
+        working-directory: heavy
+
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Run tests with coverage (core)
+        run: go test -race -coverprofile=coverage-core.out -covermode=atomic ./...
+      - name: Run tests with coverage (heavy)
+        run: go test -race -coverprofile=coverage-heavy.out -covermode=atomic ./...
+        working-directory: heavy
+      - name: Check core coverage threshold (80%)
+        run: |
+          COVERAGE=$(go tool cover -func=coverage-core.out | grep total | awk '{print $3}' | sed 's/%//')
+          echo "Core coverage: ${COVERAGE}%"
+          if [ "$(echo "$COVERAGE < 80" | bc -l)" -eq 1 ]; then
+            echo "::error::Core module coverage ${COVERAGE}% is below 80% threshold"
+            exit 1
+          fi
+      - name: Report heavy coverage
+        run: |
+          COVERAGE=$(go tool cover -func=heavy/coverage-heavy.out | grep total | awk '{print $3}' | sed 's/%//')
+          echo "Heavy coverage: ${COVERAGE}%"
+          echo "Note: Heavy module coverage is lower due to packages requiring live infrastructure (nosql, sql, smtp, configbuilder, configreader)"
+
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Fuzz hash/argon2 decodeHash
+        run: go test -fuzz=FuzzDecodeHash -fuzztime=30s ./hash/...
+      - name: Fuzz encrypt DecryptAES256GCM
+        run: go test -fuzz=FuzzDecryptAES256GCM -fuzztime=30s ./encrypt/...
+      - name: Fuzz convert ToInt64
+        run: go test -fuzz=FuzzToInt64 -fuzztime=30s ./convert/...
+
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Run benchmarks (core)
+        run: go test -bench=. -benchmem -run=^$ -timeout 120s ./encrypt/... ./hash/... ./convert/... ./random/...
+      - name: Run benchmarks (heavy)
+        run: go test -bench=. -benchmem -run=^$ -timeout 120s ./tokens/...
         working-directory: heavy
 
   lint:

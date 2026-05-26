@@ -7,19 +7,14 @@ import (
 	"github.com/alpardfm/go-toolkit/errors"
 )
 
+// emailRegex is compiled once at package init for performance.
+var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+
 // IsValidEmail validates whether the given string is a valid email address format.
 // Returns true if valid, or false with an error if the format is invalid.
 func IsValidEmail(email string) (bool, error) {
-	const pattern = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-
-	isMatch, err := regexp.MatchString(pattern, email)
-	if err != nil {
-		return false, err
-	}
-
-	if !isMatch {
+	if !emailRegex.MatchString(email) {
 		return false, errors.NewWithCode(codes.CodeInvalidValue, "email format is not valid")
-	} else {
-		return true, nil
 	}
+	return true, nil
 }

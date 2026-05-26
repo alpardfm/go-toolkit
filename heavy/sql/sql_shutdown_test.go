@@ -66,6 +66,7 @@ func (mc *mockCommand) BeginTx(_ context.Context, _ string, _ TxOptions) (Comman
 func (mc *mockCommand) Get(_ context.Context, _ string, _ string, _ any, _ ...any) error {
 	return nil
 }
+func (mc *mockCommand) Done() {}
 
 func newTestSQLDB() *sqlDB {
 	return &sqlDB{
