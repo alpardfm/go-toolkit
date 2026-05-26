@@ -19,7 +19,7 @@ func ExampleEncryptAES256GCM() {
 	}
 
 	// Decrypt it back
-	decrypted, err := encrypt.DecryptAES256GC(ciphertext, key)
+	decrypted, err := encrypt.DecryptAES256GCM(ciphertext, key)
 	if err != nil {
 		fmt.Println("error:", err)
 		return

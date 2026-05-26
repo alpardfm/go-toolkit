@@ -32,14 +32,14 @@ type mongoDB struct {
 	log    log.Interface
 }
 
-func Init(cfg Config, log log.Interface) Interface {
+func Init(cfg Config, log log.Interface) (Interface, error) {
 	ctx := context.Background()
 	client := options.Client().ApplyURI(cfg.DBUrl)
 	dbClient, err := mongo.Connect(ctx, client)
 	if err != nil {
-		log.Fatal(ctx, fmt.Sprintf("[FATAL] cannot connect to dbURL %s, err : %v", cfg.DBUrl, err))
+		return nil, errors.NewWithCode(codes.CodeNoSQLInit, "failed to connect to MongoDB at %s: %v", cfg.DBUrl, err)
 	}
-	log.Info(ctx, fmt.Sprintf("NoSQL: dbURL=%s db=%s", cfg.DBUrl, cfg.DB))
+	log.Info(ctx, fmt.Sprintf("NoSQL: db=%s", cfg.DB))
 
 	nosql := &mongoDB{
 		client: dbClient,
@@ -47,7 +47,7 @@ func Init(cfg Config, log log.Interface) Interface {
 		cfg:    cfg,
 	}
 
-	return nosql
+	return nosql, nil
 }
 
 func (m *mongoDB) Close(ctx context.Context) error {

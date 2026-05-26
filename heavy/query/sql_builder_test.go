@@ -10,6 +10,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func mustInitLog() log.Interface {
+	l, _ := log.Init(log.Config{Level: "debug"})
+	return l
+}
+
 type TestParam struct {
 	ID      int     `db:"id" param:"id" cursorField:"id"`
 	Name    string  `db:"name" param:"name" cursorField:"name"`
@@ -250,7 +255,7 @@ func Test_sqlClausebuilder_Build(t *testing.T) {
 					User:     "root",
 					Password: "password",
 				},
-			}, log.Init(log.Config{Level: "debug"}))
+			}, mustInitLog())
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -335,7 +340,7 @@ func Test_sqlClausebuilder_AddPrefixQuery(t *testing.T) {
 					User:     "root",
 					Password: "password",
 				},
-			}, log.Init(log.Config{Level: "debug"}))
+			}, mustInitLog())
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -408,7 +413,7 @@ func Test_sqlClausebuilder_AddAliasPrefix(t *testing.T) {
 					User:     "root",
 					Password: "password",
 				},
-			}, log.Init(log.Config{Level: "debug"}))
+			}, mustInitLog())
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -422,7 +427,7 @@ func Test_sqlClausebuilder_AddAliasPrefix(t *testing.T) {
 
 			got, got1, got2, got3, err := qBuilder.Build(tt.args.param)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("sqlClausebuilder.AddAliasPrefix() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("sqlClausebuilder.Build() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			assert.Equal(t, tt.want, got)
@@ -495,7 +500,7 @@ func Test_sqlClausebuilder_AddSuffixQuery(t *testing.T) {
 					User:     "root",
 					Password: "password",
 				},
-			}, log.Init(log.Config{Level: "debug"}))
+			}, mustInitLog())
 			if err != nil {
 				t.Fatal(err)
 			}

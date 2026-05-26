@@ -48,7 +48,7 @@ func Init(opt Options) (Interface, error) {
 }
 
 func (c *configReader) mergeEnvConfig() {
-	enver := os.Getenv("AQUAHERO_SERVICE_VERSION")
+	enver := os.Getenv("SERVICE_VERSION")
 	sm := c.viper.GetStringMap("meta")
 	if enver != "" {
 		sm["version"] = enver

@@ -89,10 +89,10 @@ func (s *sqlClausebuilder) AddSuffixQuery(suffix string) *sqlClausebuilder {
 	return s
 }
 
-func (s *sqlClausebuilder) AddAliasPrefix(alias string, ptr any) *sqlClausebuilder {
+func (s *sqlClausebuilder) AddAliasPrefix(alias string, ptr any) (*sqlClausebuilder, error) {
 	p := reflect.ValueOf(ptr)
 	if p.Kind() != reflect.Ptr {
-		panic(errors.NewWithCode(codes.CodeInvalidValue, "passed argument should be a pointer"))
+		return nil, errors.NewWithCode(codes.CodeInvalidValue, "passed argument should be a pointer")
 	}
 	v := p.Elem()
 	var address string
@@ -101,7 +101,7 @@ func (s *sqlClausebuilder) AddAliasPrefix(alias string, ptr any) *sqlClausebuild
 	}
 
 	s.aliasMap[address] = alias
-	return s
+	return s, nil
 }
 
 func (s *sqlClausebuilder) Build(param any) (string, []any, string, []any, error) {

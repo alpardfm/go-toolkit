@@ -55,17 +55,17 @@ func TestGQLBuilder(t *testing.T) {
 		{
 			name:    "Test with nil build parameter",
 			params:  nil,
-			wantErr: "params: must be a struct",
+			wantErr: "Error: params: must be a struct",
 		},
 		{
 			name:    "Test with not struct build parameter",
 			params:  1,
-			wantErr: "params: must be a struct",
+			wantErr: "Error: params: must be a struct",
 		},
 		{
 			name:    "Test with pointer struct build parameter",
 			params:  &Params{},
-			wantErr: "params: cannot be a pointer",
+			wantErr: "Error: params: cannot be a pointer",
 		},
 		{
 			name: "Test success build",

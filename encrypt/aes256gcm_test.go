@@ -30,7 +30,7 @@ func TestAES256GCM(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			if test.isDecrypt {
-				decryptedText, err := DecryptAES256GC([]byte(test.text), []byte(key))
+				decryptedText, err := DecryptAES256GCM([]byte(test.text), []byte(key))
 				if err != nil {
 					t.Errorf("TestAES256GCM() error: '%v', want err: 'nil'", err)
 				} else {

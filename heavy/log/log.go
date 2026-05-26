@@ -11,7 +11,6 @@ import (
 	"github.com/alpardfm/go-toolkit/errors"
 	"github.com/alpardfm/go-toolkit/operator"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 var once = sync.Once{}
@@ -34,23 +33,30 @@ type logger struct {
 	log zerolog.Logger
 }
 
-func Init(cfg Config) Interface {
+func Init(cfg Config) (Interface, error) {
 	var zeroLogging zerolog.Logger
+	var initErr error
+
 	once.Do(func() {
 		level, err := zerolog.ParseLevel(cfg.Level)
 		if err != nil {
-			log.Fatal().Msg(fmt.Sprintf("failed to parse error level with err: %v", err))
+			initErr = err
+			return
 		}
 
 		zeroLogging = zerolog.New(os.Stdout).
 			With().
 			Timestamp().
-			CallerWithSkipFrameCount(3). //Hard code to 3 for now.
+			CallerWithSkipFrameCount(3).
 			Logger().
 			Level(level)
 	})
 
-	return &logger{log: zeroLogging}
+	if initErr != nil {
+		return nil, fmt.Errorf("failed to parse log level %q: %w", cfg.Level, initErr)
+	}
+
+	return &logger{log: zeroLogging}, nil
 }
 
 func (l *logger) Trace(ctx context.Context, obj any) {

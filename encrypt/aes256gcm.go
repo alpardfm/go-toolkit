@@ -37,8 +37,8 @@ func EncryptAES256GCM(text, key []byte) ([]byte, error) {
 	return []byte(s), nil
 }
 
-// DecryptAES256GC decrypts ciphertext that was encrypted with EncryptAES256GCM using the same 32-byte key.
-func DecryptAES256GC(text, key []byte) ([]byte, error) {
+// DecryptAES256GCM decrypts ciphertext that was encrypted with EncryptAES256GCM using the same 32-byte key.
+func DecryptAES256GCM(text, key []byte) ([]byte, error) {
 	text, err := base64.StdEncoding.DecodeString(string(text))
 	if err != nil {
 		return nil, errors.NewWithCode(codes.CodeInvalidValue, "failed to decode base64 string: %v", err)

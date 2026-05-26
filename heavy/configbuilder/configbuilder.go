@@ -50,15 +50,19 @@ func Init(opt Options) (Interface, error) {
 	// if access key and secret not found in env, get credentials from local or metadata
 	// this behaviour is intended to support all local, staging, and production environment
 	// session credentials behaviour: https://docs.aws.amazon.com/sdk-for-go/api/aws/session/
+	var err error
 	if opt.Key != "" && opt.Secret != "" {
-		sess = session.Must(session.NewSession(&aws.Config{
+		sess, err = session.NewSession(&aws.Config{
 			Region:      aws.String(opt.Region),
 			Credentials: credentials.NewStaticCredentials(opt.Key, opt.Secret, ""),
-		}))
+		})
 	} else {
-		sess = session.Must(session.NewSession(&aws.Config{
+		sess, err = session.NewSession(&aws.Config{
 			Region: aws.String(opt.Region),
-		}))
+		})
+	}
+	if err != nil {
+		return nil, errors.NewWithCode(codes.CodeConfigBuilderInit, "failed to create AWS session: %v", err)
 	}
 
 	ssm := ssm.New(sess)

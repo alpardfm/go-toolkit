@@ -33,6 +33,6 @@ func BenchmarkDecryptAES256GCM(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, _ = DecryptAES256GC(ciphertext, key)
+		_, _ = DecryptAES256GCM(ciphertext, key)
 	}
 }

@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  test-core:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,6 +20,20 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - run: go test -race ./...
 
+  test-heavy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.21', 'stable']
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+      - run: go test -race ./...
+        working-directory: heavy
+
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -31,3 +45,7 @@ jobs:
       - uses: golangci/golangci-lint-action@v4
         with:
           version: latest
+      - uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          working-directory: heavy
