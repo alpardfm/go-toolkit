@@ -3,7 +3,7 @@ module github.com/alpardfm/go-toolkit/heavy
 go 1.21.5
 
 require (
-	github.com/alpardfm/go-toolkit v0.0.0
+	github.com/alpardfm/go-toolkit v1.0.0
 	github.com/aws/aws-sdk-go v1.54.20
 	github.com/cbroglie/mustache v1.4.0
 	github.com/go-mail/gomail v2.3.1+incompatible
@@ -56,4 +56,3 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/alpardfm/go-toolkit => ../
