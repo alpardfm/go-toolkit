@@ -60,6 +60,9 @@ func DecryptAES256GCM(text, key []byte) ([]byte, error) {
 	}
 
 	nonceSize := gcm.NonceSize()
+	if len(text) < nonceSize {
+		return nil, errors.NewWithCode(codes.CodeAES256GCMOpenError, "ciphertext too short: must be at least %d bytes", nonceSize)
+	}
 	nonce, encrypedText := text[:nonceSize], text[nonceSize:]
 
 	if res, err := gcm.Open(nil, nonce, encrypedText, nil); err != nil {

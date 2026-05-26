@@ -1,6 +1,8 @@
 # Go Toolkit
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/alpardfm/go-toolkit.svg)](https://pkg.go.dev/github.com/alpardfm/go-toolkit)
+[![CI](https://github.com/alpardfm/go-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/alpardfm/go-toolkit/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/alpardfm/go-toolkit)](https://goreportcard.com/report/github.com/alpardfm/go-toolkit)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8.svg)](https://go.dev/)
 
@@ -61,9 +63,9 @@ For details on which dependencies each package requires, see [DEPENDENCIES.md](D
 | [tokens](./tokens) | JWT token creation and validation | [![GoDoc](https://pkg.go.dev/badge/github.com/alpardfm/go-toolkit/tokens)](https://pkg.go.dev/github.com/alpardfm/go-toolkit/tokens) |
 | [validation](./validation) | Input validation utilities (email, etc.) | [![GoDoc](https://pkg.go.dev/badge/github.com/alpardfm/go-toolkit/validation)](https://pkg.go.dev/github.com/alpardfm/go-toolkit/validation) |
 
-## Breaking Changes (Upcoming v1.0.0)
+## Breaking Changes (v1.0.0)
 
-The following breaking changes have been introduced to improve safety and correctness:
+The following breaking changes were introduced in v1.0.0 to improve safety and correctness:
 
 - **configbuilder**: `Init()` now returns `(Interface, error)` instead of `Interface`
 - **configreader**: `Init()` now returns `(Interface, error)` instead of `Interface`

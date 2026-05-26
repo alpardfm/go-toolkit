@@ -24,6 +24,12 @@ type Command interface {
 	BeginTx(ctx context.Context, name string, opts TxOptions) (CommandTx, error)
 
 	Get(ctx context.Context, name string, query string, dest any, args ...any) error
+
+	// Done signals that the caller is finished with this command instance.
+	// Must be called (typically via defer) after obtaining a Command from Leader() or Follower()
+	// to allow graceful shutdown to track in-flight operations.
+	// For the base command (non-inflight), this is a no-op.
+	Done()
 }
 
 type TxOptions struct {
@@ -112,3 +118,7 @@ func (c *command) BeginTx(ctx context.Context, name string, opt TxOptions) (Comm
 func (c *command) Get(ctx context.Context, name string, query string, dest any, args ...any) error {
 	return c.db.GetContext(ctx, dest, query, args...)
 }
+
+// Done is a no-op for the base command. It exists to satisfy the Command interface.
+// The inflight-tracking variant (returned by Leader()/Follower()) performs actual cleanup.
+func (c *command) Done() {}

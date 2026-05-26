@@ -74,11 +74,25 @@ func Init(cfg Config, log log.Interface) (Interface, error) {
 }
 
 func (s *sqlDB) Leader() Command {
-	return s.leader
+	s.shutdownMu.Lock()
+	closing := s.closing
+	s.shutdownMu.Unlock()
+	if closing {
+		return s.leader // return as-is; queries will fail naturally on closed DB
+	}
+	s.inflight.Add(1)
+	return &inflightCommand{cmd: s.leader, wg: &s.inflight}
 }
 
 func (s *sqlDB) Follower() Command {
-	return s.follower
+	s.shutdownMu.Lock()
+	closing := s.closing
+	s.shutdownMu.Unlock()
+	if closing {
+		return s.follower
+	}
+	s.inflight.Add(1)
+	return &inflightCommand{cmd: s.follower, wg: &s.inflight}
 }
 
 func (s *sqlDB) Stop() {

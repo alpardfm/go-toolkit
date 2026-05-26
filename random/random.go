@@ -1,49 +1,59 @@
 package random
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 	"strings"
-	"time"
 
 	"github.com/alpardfm/go-toolkit/codes"
-	"github.com/alpardfm/go-toolkit/convert"
 	"github.com/alpardfm/go-toolkit/errors"
 	"github.com/google/uuid"
 )
 
-// GenerateInt generates a random positive integer with the specified number of digits.
+// GenerateInt generates a cryptographically secure random positive integer with the specified number of digits.
 // Each digit is guaranteed to be non-zero (1-9).
+// Uses crypto/rand for secure randomness suitable for tokens, OTPs, and security-sensitive use cases.
 func GenerateInt(length int) (int64, error) {
-	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	if length <= 0 {
+		return 0, errors.NewWithCode(codes.CodeInvalidValue, "length must be greater than 0")
+	}
+	if length > 18 {
+		return 0, errors.NewWithCode(codes.CodeInvalidValue, "length must be 18 or less to fit in int64")
+	}
 
 	var sb strings.Builder
 	sb.Grow(length)
 
 	for i := 0; i < length; i++ {
-		s, err := convert.ToString(rng.Intn(9))
+		// Generate a random number in range [1, 9]
+		n, err := rand.Int(rand.Reader, big.NewInt(9))
 		if err != nil {
-			return 0, errors.NewWithCode(codes.CodeInvalidValue, err.Error())
+			return 0, errors.NewWithCode(codes.CodeInvalidValue, "failed to generate random number: %v", err)
 		}
-
-		if s == "0" {
-			i -= 1
-			continue
-		}
-
-		sb.WriteString(s)
+		// n is [0, 8], add 1 to get [1, 9]
+		digit := n.Int64() + 1
+		sb.WriteByte(byte('0' + digit))
 	}
 
-	iValue, err := convert.ToInt64(sb.String())
-	if err != nil {
-		return 0, errors.NewWithCode(codes.CodeInvalidValue, err.Error())
+	// Parse the string to int64
+	var result int64
+	for _, c := range sb.String() {
+		result = result*10 + int64(c-'0')
 	}
 
-	return iValue, nil
+	return result, nil
 }
 
 // GeneratePUID generates a pseudo-unique identifier of the specified length
 // by combining the given MSISDN with a UUID and hashing via SHA1.
 func GeneratePUID(msisdn string, length int) (string, error) {
+	if length <= 0 {
+		return "", errors.NewWithCode(codes.CodeInvalidValue, "length must be greater than 0")
+	}
+	if length > 32 {
+		return "", errors.NewWithCode(codes.CodeInvalidValue, "length must be 32 or less (UUID hex length without dashes)")
+	}
+
 	combinedString := msisdn + uuid.New().String()
 	puid := uuid.NewSHA1(uuid.Nil, []byte(combinedString))
 

@@ -1,7 +1,6 @@
 package distance
 
 import (
-	"context"
 	"math"
 	"testing"
 )
@@ -41,7 +40,7 @@ func TestCalculateDistance(t *testing.T) {
 			lng1:    106.8456,
 			lat2:    -6.9175,
 			lng2:    107.6191,
-			units:   []string{"K"},
+			units:   []string{UnitKilometers},
 			wantMin: 100000,
 			wantMax: 250000,
 		},
@@ -51,7 +50,7 @@ func TestCalculateDistance(t *testing.T) {
 			lng1:    -74.0060,
 			lat2:    51.5074,
 			lng2:    -0.1278,
-			units:   []string{"K"},
+			units:   []string{UnitKilometers},
 			wantMin: 5000000,
 			wantMax: 6000000,
 		},
@@ -61,7 +60,7 @@ func TestCalculateDistance(t *testing.T) {
 			lng1:    0,
 			lat2:    0,
 			lng2:    1,
-			units:   []string{"K"},
+			units:   []string{UnitKilometers},
 			wantMin: 100000,
 			wantMax: 120000,
 		},
@@ -71,7 +70,7 @@ func TestCalculateDistance(t *testing.T) {
 			lng1:    0,
 			lat2:    -90,
 			lng2:    0,
-			units:   []string{"K"},
+			units:   []string{UnitKilometers},
 			wantMin: 19000000,
 			wantMax: 21000000,
 		},
@@ -89,7 +88,7 @@ func TestCalculateDistance(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := CalculateDistance(context.Background(), tt.lat1, tt.lng1, tt.lat2, tt.lng2, tt.units...)
+			got := CalculateDistance(tt.lat1, tt.lng1, tt.lat2, tt.lng2, tt.units...)
 			if math.IsNaN(got) {
 				t.Errorf("CalculateDistance() returned NaN")
 				return
@@ -106,8 +105,8 @@ func TestCalculateDistance_Symmetry(t *testing.T) {
 	lat1, lng1 := -6.2088, 106.8456
 	lat2, lng2 := -6.9175, 107.6191
 
-	d1 := CalculateDistance(context.Background(), lat1, lng1, lat2, lng2, "K")
-	d2 := CalculateDistance(context.Background(), lat2, lng2, lat1, lng1, "K")
+	d1 := CalculateDistance(lat1, lng1, lat2, lng2, UnitKilometers)
+	d2 := CalculateDistance(lat2, lng2, lat1, lng1, UnitKilometers)
 
 	if math.Abs(d1-d2) > 0.01 {
 		t.Errorf("Distance is not symmetric: %v vs %v", d1, d2)
